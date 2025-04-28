@@ -45,7 +45,9 @@ def progress_bar(completed,total):
     if total == 0:
         return "[..........]"
     else:
-        return f"[{'#' * int(completed / total * 10)}{'.' * (10 - int(completed / total * 10))}]"
+        if int(completed / total * 10) == 10:
+            return "[##########]"
+        return f"[{'#' * (int(completed / total * 10)-1)}{'>'}{'.' * (10 - int(completed / total * 10))}]"
 
 def main():
     # Get arguments from command line
@@ -53,7 +55,7 @@ def main():
     parser.add_argument("-?",action="help",help="show this help message and exit")
     parser.add_argument('-i', '--interface', default=" ", help="Interface to send packets on (if a valid interface isn't specified, a list of interfaces will be shown)")
     parser.add_argument('-n', '--number', type=int, default=0, help="Number of packets to send (0 = unlimited)")
-    parser.add_argument('-d', '--delay', type=float, default=0.001, help="Delay between packets in seconds (defaults to 1ms)")
+    parser.add_argument('-d', '--delay', type=float, default=0, help="Delay between packets in milliseconds") 
     parser.add_argument("-p","--packet",type=str,default="",help="Specify custom .bin file to use for packet")
     args = parser.parse_args()
 
@@ -84,7 +86,8 @@ def main():
             count += 1
             print(f"{progress_bar(count,args.number)} [{count}/{args.number}]",end="\r")
             if args.delay > 0:
-                time.sleep(args.delay)
+                # Time on a scale of seconds is useless when considering the speed of networking, milliseconds is a much more useful time frame
+                time.sleep(args.delay/1000)
     except KeyboardInterrupt:
         print("\n[!] Stopped by user.")
     except Exception as e:
